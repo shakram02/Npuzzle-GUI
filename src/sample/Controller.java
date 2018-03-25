@@ -87,21 +87,29 @@ public class Controller {
         }
 
         loadLabelData(splits);
-        Collection<State<Integer>> solution = solveProblem(splits, UtilsKt::manhattanDistance);
+        try {
+            Collection<State<Integer>> solution = solveProblem(splits, UtilsKt::manhattanDistance);
 
 
-        result = new ArrayList<>();
-        for (State<Integer> state : solution) {
-            result.add(stateToArray(state));
-            System.out.println(state);
+            result = new ArrayList<>();
+            for (State<Integer> state : solution) {
+                result.add(stateToArray(state));
+                System.out.println(state);
+            }
+
+
+            solutionIndex = 1;
+            btnNext.setDisable(false);
+
+            lblCount.setText("Count: " + solution.size());
+            lblCount.setVisible(true);
+        } catch (IllegalStateException exc) {
+            btnNext.setDisable(true);
+            btnPrev.setDisable(true);
+            lblCount.setText("Failed to find a solution");
+            loadLabelData(new String[]{"-", "-", "-", "-", "-", "-", "-", "-", "-"});
         }
 
-
-        solutionIndex = 1;
-        btnNext.setDisable(false);
-
-        lblCount.setText("Count: " + solution.size());
-        lblCount.setVisible(true);
     }
 
     @FXML
