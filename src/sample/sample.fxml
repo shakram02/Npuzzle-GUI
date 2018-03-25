@@ -55,6 +55,11 @@
                         <Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />
                     </VBox.margin>
                 </Button>
+            <Label fx:id="stepIndex">
+               <VBox.margin>
+                  <Insets bottom="6.0" left="6.0" right="6.0" top="6.0" />
+               </VBox.margin>
+            </Label>
             </children>
         </VBox>
         <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="2" GridPane.rowIndex="3">

@@ -1,7 +1,5 @@
 package sample;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
@@ -46,6 +44,9 @@ public class Controller {
     @FXML
     private RadioButton dfs;
 
+    @FXML
+    private Label stepIndex;
+    private Collection<State<Integer>> solution;
     private ArrayList<Label> labels = new ArrayList<>(9);
     private ArrayList<ArrayList<String>> result;
     private int solutionIndex = -1;
@@ -61,13 +62,16 @@ public class Controller {
                 GridPane.setFillHeight(l, true);
                 GridPane.setHalignment(l, HPos.CENTER);
                 GridPane.setValignment(l, VPos.CENTER);
+
                 l.textProperty().addListener((observableValue, oldVal, newVal) -> {
+                    // Update colors to match the 0 item
                     if (newVal.equals("0")) {
                         l.setTextFill(new Color(1, 0, 0, 1));
                     } else {
                         l.setTextFill(new Color(0, 0, 0, 1));
                     }
                 });
+
                 labels.add(l);
                 mainGrid.add(l, j, i);
             }
@@ -88,20 +92,23 @@ public class Controller {
 
         loadLabelData(splits);
         try {
-            Collection<State<Integer>> solution = solveProblem(splits, UtilsKt::manhattanDistance);
+            long start = System.nanoTime();
 
+            solution = solveProblem(splits, UtilsKt::manhattanDistance);
+//            solution = solveProblem(splits, UtilsKt::euclideanDistance);
+            System.out.println("Solution is composed of:" + solution.size() + " steps");
+            long duration = System.nanoTime() - start;
 
             result = new ArrayList<>();
             for (State<Integer> state : solution) {
                 result.add(stateToArray(state));
-                System.out.println(state);
             }
 
 
             solutionIndex = 1;
             btnNext.setDisable(false);
 
-            lblCount.setText("Count: " + solution.size());
+            lblCount.setText("Count: " + solution.size() + "\nDuration:" + (duration / 1000000) + " ms");
             lblCount.setVisible(true);
         } catch (IllegalStateException exc) {
             btnNext.setDisable(true);
@@ -117,13 +124,15 @@ public class Controller {
         loadLabelData(result.get(solutionIndex));
 
         solutionIndex++;
-        if (solutionIndex >= labels.size()) {
+        if (solutionIndex >= solution.size()) {
             btnNext.setDisable(true);
             solutionIndex--;
         } else {
             btnPrev.setDisable(false);
             btnNext.setDisable(false);
         }
+
+        stepIndex.setText(String.format("%s/%s", solutionIndex, solution.size()));
     }
 
     @FXML
@@ -138,6 +147,8 @@ public class Controller {
             btnNext.setDisable(false);
             btnPrev.setDisable(false);
         }
+
+        stepIndex.setText(String.format("%s/%s", solutionIndex, solution.size()));
     }
 
     private <T extends Number> ArrayList<String> stateToArray(State<T> state) {
