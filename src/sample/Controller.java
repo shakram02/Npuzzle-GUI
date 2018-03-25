@@ -1,5 +1,7 @@
 package sample;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
@@ -8,6 +10,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import kotlin.Pair;
 import kotlin.jvm.functions.Function1;
 import kotlin.jvm.functions.Function2;
@@ -25,6 +29,9 @@ public class Controller {
     private GridPane mainGrid;
     @FXML
     private TextField gridInput;
+
+    @FXML
+    private Label lblCount;
 
     @FXML
     private Button btnNext;
@@ -49,19 +56,26 @@ public class Controller {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 Label l = new Label("-");
-
+                l.setFont(new Font(45));
                 GridPane.setFillWidth(l, true);
                 GridPane.setFillHeight(l, true);
                 GridPane.setHalignment(l, HPos.CENTER);
                 GridPane.setValignment(l, VPos.CENTER);
-
+                l.textProperty().addListener((observableValue, oldVal, newVal) -> {
+                    if (newVal.equals("0")) {
+                        l.setTextFill(new Color(1, 0, 0, 1));
+                    } else {
+                        l.setTextFill(new Color(0, 0, 0, 1));
+                    }
+                });
                 labels.add(l);
-                mainGrid.add(l, i, j);
+                mainGrid.add(l, j, i);
             }
         }
 
         btnNext.setDisable(true);
         btnPrev.setDisable(true);
+        lblCount.setVisible(false);
     }
 
     @FXML
@@ -72,7 +86,6 @@ public class Controller {
             throw new IllegalArgumentException("Cell count isn't correct");
         }
 
-        solutionIndex = 0;
         loadLabelData(splits);
         Collection<State<Integer>> solution = solveProblem(splits, UtilsKt::manhattanDistance);
 
@@ -80,20 +93,43 @@ public class Controller {
         result = new ArrayList<>();
         for (State<Integer> state : solution) {
             result.add(stateToArray(state));
+            System.out.println(state);
         }
 
 
-        System.out.println(result.get(0));
+        solutionIndex = 1;
+        btnNext.setDisable(false);
+
+        lblCount.setText("Count: " + solution.size());
+        lblCount.setVisible(true);
     }
 
     @FXML
     public void onNext() {
+        loadLabelData(result.get(solutionIndex));
 
+        solutionIndex++;
+        if (solutionIndex >= labels.size()) {
+            btnNext.setDisable(true);
+            solutionIndex--;
+        } else {
+            btnPrev.setDisable(false);
+            btnNext.setDisable(false);
+        }
     }
 
     @FXML
     public void onPrev() {
+        loadLabelData(result.get(solutionIndex));
 
+        solutionIndex--;
+        if (solutionIndex < 0) {
+            btnPrev.setDisable(true);
+            solutionIndex++;
+        } else {
+            btnNext.setDisable(false);
+            btnPrev.setDisable(false);
+        }
     }
 
     private <T extends Number> ArrayList<String> stateToArray(State<T> state) {
@@ -140,12 +176,18 @@ public class Controller {
         } else {
             throw new IllegalStateException();
         }
-
     }
 
     private void loadLabelData(String[] items) {
         for (int i = 0; i < labels.size(); i++) {
             String item = items[i].trim();
+            labels.get(i).setText(item);
+        }
+    }
+
+    private void loadLabelData(ArrayList<String> items) {
+        for (int i = 0; i < labels.size(); i++) {
+            String item = items.get(i).trim();
             labels.get(i).setText(item);
         }
     }
