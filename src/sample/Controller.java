@@ -18,6 +18,7 @@ import npuzzle.abstractions.Direction;
 import npuzzle.abstractions.Move;
 import npuzzle.abstractions.State;
 
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -103,7 +104,6 @@ public class Controller {
             for (State<Integer> state : solution) {
                 result.add(stateToArray(state));
             }
-
 
             solutionIndex = 1;
             btnNext.setDisable(false);
