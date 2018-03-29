@@ -1,4 +1,4 @@
-package sample;
+package npuzzle_gui;
 
 import javafx.fxml.FXML;
 import javafx.geometry.HPos;
